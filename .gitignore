@@ -1,0 +1,9 @@
+.env
+.venv/
+.venv-system/
+venv/
+__pycache__/
+*.py[cod]
+health.db
+instance/
+*.log

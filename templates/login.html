@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}"><meta name="theme-color" content="#f8f8f3">
+  <title>Sign in | Carewell</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=4">
+</head><body class="auth-page">
+  <header class="site-header"><div class="nav-wrap"><a class="brand" href="/"><span class="brand-mark">+</span><span>HealthGuard<span class="brand-dot"> AI</span></span></a><a class="nav-cta" href="{{ url_for('auth.register_page') }}">Create account</a></div></header>
+  <main class="auth-main"><div class="auth-aside"><span class="eyebrow">HEALTHGUARD AI</span><h1>Your health,<br><em>in perspective.</em></h1><p>Sign in to review your personal screening history and continue your health check-in.</p></div>
+    <section class="auth-card"><span class="eyebrow">WELCOME BACK</span><h2>Sign in to your account</h2><p class="auth-lead">Use your email and password to continue.</p>
+      {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<p class="auth-message {{ category }}">{{ message }}</p>{% endfor %}{% endwith %}
+      <form method="post" action="{{ url_for('auth.login', next=request.args.get('next', '')) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label>Email address<input name="email" type="email" autocomplete="email" maxlength="254" required></label>
+        <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+        <button class="primary auth-submit" type="submit">Sign in</button>
+      </form><p class="auth-switch">New here? <a href="{{ url_for('auth.register_page') }}">Create an account</a></p>
+    </section></main>
+  <footer class="site-footer"><div class="footer-bottom"><span>Educational screening only. Not a diagnosis.</span><span>If you have emergency symptoms, call local emergency services.</span></div></footer>
+</body></html>

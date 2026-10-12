@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f8f7">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta name="description" content="A thoughtful guide to understanding your health readings and taking your next step.">
+  <title>Your health, in perspective | HealthGuard AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=5">
+  {% if current_user.is_authenticated %}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>{% endif %}
+</head>
+<body>
+<header class="site-header">
+  <div class="nav-wrap">
+    <a class="brand" href="/" aria-label="HealthGuard AI home"><span class="brand-mark" aria-hidden="true">+</span><span>HealthGuard<span class="brand-dot"> AI</span></span></a>
+    <nav class="site-nav" aria-label="Main navigation"><a href="#approach">Our approach</a><a href="#checkup">Health check</a><a href="#learn">What to know</a></nav>
+    {% if current_user.is_authenticated %}
+      <div class="account-nav"><span>Hi, {{ current_user.name }}</span><form method="post" action="{{ url_for('auth.logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="nav-logout" type="submit">Sign out</button></form></div>
+      <a class="nav-cta" href="#checkup">Start your check <span aria-hidden="true">↗</span></a>
+    {% else %}
+      <div class="account-nav"><a href="{{ url_for('auth.login_page') }}">Sign in</a><a class="nav-cta" href="{{ url_for('auth.register_page') }}">Create account <span aria-hidden="true">↗</span></a></div>
+    {% endif %}
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <span class="eyebrow"><i></i> A MORE HUMAN WAY TO CHECK IN</span>
+      <h1>Your health,<br><em>in perspective.</em></h1>
+      <p>Make sense of your latest health readings with a calm, considered overview and practical ideas for what to do next.</p>
+      <div class="hero-actions"><a class="hero-cta" href="#checkup">Explore your health <span aria-hidden="true">↓</span></a><span class="hero-meta">A simple check-in · About 2 minutes</span></div>
+    </div>
+    <div class="hero-art" aria-label="Abstract illustration representing balance and wellbeing" role="img">
+      <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
+      <div class="art-card art-card-top"><span class="art-dot"></span><span>YOUR WELLBEING</span><strong>Starts with a check-in</strong></div>
+      <div class="art-sun"></div><div class="art-leaf leaf-one"></div><div class="art-leaf leaf-two"></div>
+      <div class="art-card art-card-bottom"><span class="pulse-mark">~</span><span><small>Thoughtful insights</small><strong>One step at a time</strong></span></div>
+      <span class="art-spark spark-one">*</span><span class="art-spark spark-two">+</span>
+    </div>
+  </div>
+  <div class="hero-foot"><span>HEALTHGUARD AI</span><span>Clarity for the everyday</span></div>
+</section>
+
+<section class="intro-strip" id="approach"><div><span class="eyebrow">A LITTLE CONTEXT GOES A LONG WAY</span><h2>Good health decisions start with understanding.</h2></div><p>Your readings are just one part of your health story. We bring them together to help you spot patterns, understand common risk factors, and have more informed conversations with a healthcare professional.</p></section>
+
+<main class="checkup-section" id="checkup">
+  <div class="section-heading"><span class="eyebrow">YOUR PERSONAL CHECK-IN</span><h2>Let's start with the basics.</h2><p>Share what you know. You can leave the contact details blank if you prefer.</p></div>
+  <div class="layout">
+  {% if current_user.is_authenticated %}
+  <form id="form" class="form" novalidate>
+    <fieldset>
+      <legend><span class="step">01</span><span><strong>About you</strong><small>A few details help personalize your results.</small></span></legend>
+      <div class="grid">
+        <label class="wide">Name <span class="hint">optional, used in alerts</span>
+          <input name="name" type="text" maxlength="80" autocomplete="name">
+        </label>
+        <label>Age (years)
+          <input name="age" type="number" step="1" min="1" max="110" required>
+        </label>
+        <label>Sex
+          <select name="gender" required>
+            <option value="0">Female</option>
+            <option value="1">Male</option>
+          </select>
+        </label>
+        <label>BMI
+          <input name="bmi" type="number" step="0.1" min="10" max="60" required>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend><span class="step">02</span><span><strong>Vitals &amp; lab results</strong><small>Use your most recent measurements.</small></span></legend>
+      <div class="grid">
+        <label>Systolic BP (mmHg)
+          <input name="systolic_bp" type="number" min="60" max="260" required>
+        </label>
+        <label>Diastolic BP (mmHg)
+          <input name="diastolic_bp" type="number" min="30" max="160" required>
+        </label>
+        <label>Blood glucose (mg/dL)
+          <input name="glucose" type="number" min="30" max="600" required>
+        </label>
+        <label>Total cholesterol (mg/dL)
+          <input name="cholesterol" type="number" min="80" max="500" required>
+        </label>
+        <label>Resting heart rate (bpm)
+          <input name="heart_rate" type="number" min="25" max="220" required>
+        </label>
+        <label>Oxygen saturation (%)
+          <input name="spo2" type="number" step="0.1" min="60" max="100" required>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend><span class="step">03</span><span><strong>Lifestyle &amp; history</strong><small>Everyday habits add useful context.</small></span></legend>
+      <div class="grid">
+        <label>Exercise days per week
+          <select name="exercise_days">
+            <option>0</option><option>1</option><option>2</option><option selected>3</option>
+            <option>4</option><option>5</option><option>6</option><option>7</option>
+          </select>
+        </label>
+        <div class="checks">
+          <label class="check"><input type="checkbox" name="smoker"> I smoke</label>
+          <label class="check"><input type="checkbox" name="alcohol"> I drink alcohol regularly</label>
+          <label class="check"><input type="checkbox" name="family_history"> Family history of heart disease or diabetes</label>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend><span class="step">04</span><span><strong>Emergency contact</strong><small>Optional, for urgent situations.</small></span></legend>
+      <p class="note">If your result is urgent, this person is alerted automatically. Add a phone number, an email, or both.</p>
+      <div class="grid">
+        <label>Contact name
+          <input name="c_name" type="text" maxlength="80">
+        </label>
+        <label>Phone (with country code)
+          <input name="c_phone" type="tel" placeholder="+91XXXXXXXXXX">
+        </label>
+        <label class="wide">Email
+          <input name="c_email" type="email">
+        </label>
+        <label class="check consent-check wide"><input type="checkbox" name="alert_consent"> I consent to an automated screening alert being sent to this contact if a configured high-priority rule is met.</label>
+      </div>
+    </fieldset>
+
+    <div class="actions">
+      <button type="submit" class="primary" id="submit">Check my risk</button>
+      <button type="button" class="ghost" id="sample">Try an example</button>
+      <button type="button" class="ghost" id="sample-urgent">See an urgent example</button>
+    </div>
+  </form>
+
+  <aside class="result" id="result" aria-live="polite">
+    <div class="result-heading"><span class="result-icon" aria-hidden="true">+</span><div><span class="eyebrow">YOUR WELLNESS SUMMARY</span><h2>Your overview</h2></div></div>
+    <svg class="ecg" viewBox="0 0 400 80" preserveAspectRatio="none" aria-hidden="true">
+      <path id="ecg-path" d="M0 40 H60 L72 40 L80 14 L92 66 L102 40 H150 L160 40 L168 28 L176 40 H230 L242 40 L250 10 L262 70 L272 40 H320 L330 40 L338 30 L346 40 H400"/>
+    </svg>
+
+    <div id="empty" class="empty">
+      <div class="empty-art" aria-hidden="true"><span>+</span><i></i><b></b></div>
+      <h2>Your health snapshot<br>starts here.</h2>
+      <p>Complete the check-in to see your personalized overview, risk factors and suggested next steps.</p>
+    </div>
+
+    <div id="output" hidden>
+      <div id="emergency" class="emergency" hidden role="alert">
+        <h2>This needs urgent attention</h2>
+        <ul id="flags"></ul>
+        <div class="emergency-actions">
+          <a class="call" href="tel:108">Call 108 (ambulance)</a>
+          <a class="call alt" href="tel:112">Call 112</a>
+          <button type="button" id="sos">Send alert to my contact</button>
+        </div>
+        <p id="alert-status" class="alert-status"></p>
+      </div>
+
+      <div class="risk-summary"><div><p class="label">YOUR ESTIMATED RISK</p><p id="level" class="level"></p></div><span class="risk-symbol" aria-hidden="true">&#9825;</span></div>
+
+      <h3 class="probability-title">Risk distribution</h3>
+      <div class="bars" id="bars"></div>
+
+      <h3 class="section-title">What raised your risk</h3>
+      <ul id="up" class="list"></ul>
+      <h3 class="section-title">What is helping</h3>
+      <ul id="down" class="list good"></ul>
+      <h3 class="section-title">Suggested next steps</h3>
+      <ul id="advice" class="list"></ul>
+    </div>
+
+    <p class="disclaimer"><span aria-hidden="true">i</span> For educational purposes only. This check does not diagnose or replace advice from a medical professional. If you may be experiencing an emergency, call 108 or 112.</p>
+  </aside>
+  {% else %}
+  <section class="signin-gate"><span class="gate-number">01 / PRIVATE CHECK-IN</span><h3>Your screening history belongs to you.</h3><p>Create an account or sign in to complete a check-in and keep your results private to your account.</p><div><a class="primary gate-button" href="{{ url_for('auth.register_page') }}">Create your account</a><a class="gate-signin" href="{{ url_for('auth.login_page') }}">Already registered? Sign in</a></div></section>
+  {% endif %}
+  </div>
+</main>
+
+{% if current_user.is_authenticated %}
+<section class="history" id="activity">
+  <div class="history-heading"><div><span class="eyebrow">YOUR ACTIVITY</span><h2>Recent checks &amp; alerts</h2></div><div class="history-tools"><span class="history-caption">Your latest activity appears here</span>{% if current_user.is_authenticated %}<a class="export-link" href="{{ url_for('history_csv') }}">Download CSV ↓</a>{% endif %}</div></div>
+  <div class="history-grid">
+    <div class="history-card"><h3><span>01</span> Health checks</h3><ul id="hist" class="plain"></ul><div class="chart-wrap"><canvas id="riskChart" aria-label="Count of screening results by category" role="img"></canvas></div><p class="chart-caption">Counts by screening category. Categories are not a measure of health changing over time.</p></div>
+    <div class="history-card"><h3><span>02</span> Alerts sent</h3><ul id="alert-log" class="plain"></ul></div>
+  </div>
+</section>
+{% endif %}
+
+<section class="learn-section" id="learn"><div class="learn-copy"><span class="eyebrow">A NOTE ON YOUR RESULTS</span><h2>Information to help you feel informed.</h2><p>This check-in uses a machine learning model trained on synthetic data. It can be a useful starting point for reflection, but it is not a diagnosis and may not reflect your personal health circumstances.</p><a href="#checkup">Return to your check-in</a></div><div class="learn-quote"><p>Your health is personal. Use this overview as a starting point for a conversation with a qualified healthcare professional.</p><small>THE HEALTHGUARD AI GUIDE</small></div></section>
+
+<footer class="site-footer"><div class="footer-main"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">+</span><span>HealthGuard<span class="brand-dot"> AI</span></span></a><span>Thoughtful tools for a more informed you.</span><a href="#checkup">Back to top ↑</a></div><div class="footer-bottom"><span>&copy; 2026 HealthGuard AI</span><span>Educational information only · In an emergency, call 108 or 112.</span></div></footer>
+
+{% if current_user.is_authenticated %}<script src="{{ url_for('static', filename='app.js') }}?v=5" defer></script>{% endif %}
+</body>
+</html>
+
+
+
